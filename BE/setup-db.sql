@@ -1,5 +1,5 @@
 -- Create KOL table
-CREATE TABLE IF NOT EXISTS "Kol" (
+CREATE TABLE IF NOT EXISTS "KOL" (
     "KolID" BIGSERIAL PRIMARY KEY,
     "UserProfileID" BIGINT NOT NULL,
     "Language" VARCHAR(50),
