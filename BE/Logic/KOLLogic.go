@@ -1,6 +1,10 @@
 package Logic
 
-import "wan-api-kol-event/DTO"
+import (
+	"wan-api-kol-event/DTO"
+	"wan-api-kol-event/Initializers"
+    "wan-api-kol-event/Models"
+)
 
 // * Get Kols from the database based on the range of pageIndex and pageSize
 // ! USE GORM TO QUERY THE DATABASE
@@ -11,5 +15,47 @@ import "wan-api-kol-event/DTO"
 // @return: List of KOLs and error message
 func GetKolLogic() ([]*DTO.KolDTO, error) {
 
-	return nil, nil
+	var kols []Models.Kol
+	
+	// query all Kols from database
+	if err := Initializers.DB.Find(&kols).Error; err != nil {
+		return nil, err
+	}
+
+	// Convert Models.Kol to DTO.KolDTO
+    var kolDTOs []*DTO.KolDTO
+    for _, kol := range kols {
+        dto := &DTO.KolDTO{
+            KolID:                kol.KolID,
+            UserProfileID:        kol.UserProfileID,
+            Language:             kol.Language,
+            Education:           kol.Education,
+            ExpectedSalary:       kol.ExpectedSalary,
+            ExpectedSalaryEnable: kol.ExpectedSalaryEnable,
+            ChannelSettingTypeID: kol.ChannelSettingTypeID,
+            IDFrontURL:           kol.IDFrontURL,
+            IDBackURL:            kol.IDBackURL,
+            PortraitURL:          kol.PortraitURL,
+            RewardID:             kol.RewardID,
+            PaymentMethodID:      kol.PaymentMethodID,
+            TestimonialsID:       kol.TestimonialsID,
+            VerificationStatus:   kol.VerificationStatus,
+            Enabled:              kol.Enabled,
+            ActiveDate:           kol.ActiveDate,
+            Active:               kol.Active,
+            CreatedBy:            kol.CreatedBy,
+            CreatedDate:          kol.CreatedDate,
+            ModifiedBy:           kol.ModifiedBy,
+            ModifiedDate:         kol.ModifiedDate,
+            IsRemove:             kol.IsRemove,
+            IsOnBoarding:         kol.IsOnBoarding,
+            Code:                 kol.Code,
+            PortraitRightURL:     kol.PortraitRightURL,
+            PortraitLeftURL:      kol.PortraitLeftURL,
+            LivenessStatus:       kol.LivenessStatus,
+        }
+        kolDTOs = append(kolDTOs, dto)
+    }
+
+	return kolDTOs, nil
 }
