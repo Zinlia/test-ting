@@ -27,6 +27,13 @@ func BoolToString(x bool) string {
 	return strconv.FormatBool(x)
 }
 
+func BoolToStringStatus(x bool, trueVal, falseVal string) string {
+	if x { 
+		return trueVal;
+	}
+	return falseVal;
+}
+
 func StringToBool(s string) bool {
 	temp, _ := strconv.ParseBool(s)
 	return temp
