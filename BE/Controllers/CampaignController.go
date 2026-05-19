@@ -7,13 +7,11 @@ import (
 	"wan-api-kol-event/ViewModels"
 	"wan-api-kol-event/Utils"
 
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
+	"github.com/gin-gonic/gin" 
 )
 
 func GetKolsController(context *gin.Context) {
-	var KolsVM ViewModels.KolViewModel
-	var guid = uuid.New().String()
+	var KolsVM ViewModels.KolViewModel 
 
 	// extract pageIndex and pageSize from query params
 	pageIndexStr := context.DefaultQuery("pageIndex", "1")
@@ -24,34 +22,31 @@ func GetKolsController(context *gin.Context) {
 	pageSize := Utils.StringToInt64(pageSizeStr)
 
 	// Validate
-    if pageIndex < 1 {
-        KolsVM.Result = Const.UnSuccess
-        KolsVM.ErrorMessage = "Invalid pageIndex"
-        KolsVM.PageIndex = 1
-        KolsVM.PageSize = 100
-        KolsVM.Guid = guid
-        context.JSON(http.StatusBadRequest, KolsVM)
-        return
-    }
+	if pageIndex < 1 {
+		KolsVM.Result = Const.UnSuccess
+		KolsVM.ErrorMessage = "Invalid pageIndex"
+		KolsVM.PageIndex = 1
+		KolsVM.PageSize = 100
+		context.JSON(http.StatusBadRequest, KolsVM)
+		return
+	}
 
     if pageSize < 1 {
         KolsVM.Result = Const.UnSuccess
         KolsVM.ErrorMessage = "Invalid pageSize"
         KolsVM.PageIndex = pageIndex
-        KolsVM.PageSize = 100
-        KolsVM.Guid = guid
+        KolsVM.PageSize = 100 
         context.JSON(http.StatusBadRequest, KolsVM)
         return
     }
 	 
 	// Call Logic Layer
-	kols, error := Logic.GetKolLogic()
+	kols, error := Logic.GetKolLogic(pageIndex, pageSize)
 	if error != nil {
 		KolsVM.Result = Const.UnSuccess
 		KolsVM.ErrorMessage = error.Error()
 		KolsVM.PageIndex = pageIndex  
-		KolsVM.PageSize = pageSize  
-		KolsVM.Guid = guid
+		KolsVM.PageSize = pageSize   
 		context.JSON(http.StatusInternalServerError, KolsVM)
 		return
 	}
@@ -60,9 +55,8 @@ func GetKolsController(context *gin.Context) {
 	KolsVM.Result = Const.Success
 	KolsVM.ErrorMessage = ""
 	KolsVM.PageIndex = pageIndex 
-	KolsVM.PageSize = pageSize  
-	KolsVM.Guid = guid
-	KolsVM.KOL = kols
+	KolsVM.PageSize = pageSize   
+	KolsVM.KolInformation = kols
 	KolsVM.TotalCount = int64(len(kols))
 	context.JSON(http.StatusOK, KolsVM)
 }

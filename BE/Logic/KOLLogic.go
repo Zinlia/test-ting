@@ -3,7 +3,8 @@ package Logic
 import (
 	"wan-api-kol-event/DTO"
 	"wan-api-kol-event/Initializers"
-    "wan-api-kol-event/Models"
+    "wan-api-kol-event/Models" 
+    "wan-api-kol-event/Utils"
 )
 
 // * Get Kols from the database based on the range of pageIndex and pageSize
@@ -13,14 +14,21 @@ import (
 // @params: pageIndex
 // @params: pageSize
 // @return: List of KOLs and error message
-func GetKolLogic() ([]*DTO.KolDTO, error) {
+func GetKolLogic(pageIndex, pageSize int64) ([]*DTO.KolDTO, error) {
+    var kols []Models.Kol
+    var totalCount int64
+    offset := (pageIndex - 1) * pageSize
 
-	var kols []Models.Kol
-	
-	// query all Kols from database
-	if err := Initializers.DB.Find(&kols).Error; err != nil {
-		return nil, err
-	}
+    if err := Initializers.DB.Model(&Models.Kol{}).Count(&totalCount).Error; err != nil {
+        return nil, err
+    }
+
+    if err := Initializers.DB.
+        Limit(int(pageSize)).
+        Offset(int(offset)).
+        Find(&kols).Error; err != nil {
+        return nil, err
+    }
 
 	// Convert Models.Kol to DTO.KolDTO
     var kolDTOs []*DTO.KolDTO
@@ -29,7 +37,7 @@ func GetKolLogic() ([]*DTO.KolDTO, error) {
             KolID:                kol.KolID,
             UserProfileID:        kol.UserProfileID,
             Language:             kol.Language,
-            Education:           kol.Education,
+            Education:            kol.Education,
             ExpectedSalary:       kol.ExpectedSalary,
             ExpectedSalaryEnable: kol.ExpectedSalaryEnable,
             ChannelSettingTypeID: kol.ChannelSettingTypeID,
@@ -39,7 +47,7 @@ func GetKolLogic() ([]*DTO.KolDTO, error) {
             RewardID:             kol.RewardID,
             PaymentMethodID:      kol.PaymentMethodID,
             TestimonialsID:       kol.TestimonialsID,
-            VerificationStatus:   kol.VerificationStatus,
+            VerificationStatus:   Utils.BoolToStringStatus(kol.VerificationStatus, "Verified", "Pending"),
             Enabled:              kol.Enabled,
             ActiveDate:           kol.ActiveDate,
             Active:               kol.Active,
@@ -52,7 +60,7 @@ func GetKolLogic() ([]*DTO.KolDTO, error) {
             Code:                 kol.Code,
             PortraitRightURL:     kol.PortraitRightURL,
             PortraitLeftURL:      kol.PortraitLeftURL,
-            LivenessStatus:       kol.LivenessStatus,
+            LivenessStatus:       Utils.BoolToStringStatus(kol.LivenessStatus, "Passed", "Failed"),
         }
         kolDTOs = append(kolDTOs, dto)
     }
