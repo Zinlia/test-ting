@@ -6,6 +6,7 @@ import (
 	"wan-api-kol-event/Initializers"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/cors"
 )
 
 func init() {
@@ -15,6 +16,12 @@ func init() {
 
 func main() {
 	r := gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"http://localhost:3000"},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
+        AllowHeaders: []string{"Content-Type", "Authorization"},
+	}))
 
 	// Define your Gin routes here
 	r.GET("/kols", Controllers.GetKolsController)
