@@ -39,17 +39,22 @@ interface Kols {
 const Page = () => {
   const [kols, setKols] = useState<Kols[]>([]);
   const [total, setTotal] = useState(0);
+  const [error, setError] = useState('');
   const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch('http://localhost:8081/kols?pageIndex=1&pageSize=100')
-      .then(r => r.json())
-      .then(d => {
-		console.log(d)
+      .then(r => {
+        if(!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json()
+      })
+      .then(d => { 
         setKols(d.KolInformation ?? []);
         setTotal(d.totalCount);
       })
-      .catch(console.error);
+      .catch(err => {
+        setError(err.message);
+      });
   }, []);
 
   const scroll = (dir: 'left' | 'right') =>
@@ -69,8 +74,13 @@ const Page = () => {
       </div>
 
       <div className={styles.list} ref={listRef}>
+        
+        {/* Fetching Error */}
+        {error && <p className={styles.error}>Failed to load: {error}</p>}
+        {/* No Data */}
         {kols.length === 0 && <p className={styles.empty}>No KOLs found.</p>}
-        {kols.map(k => (
+        
+        {!error && kols.map(k => (
           <div className={styles.card} key={k.KolID}>
 
             {/* Avatar */}
